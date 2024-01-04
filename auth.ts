@@ -14,6 +14,20 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  pages: {
+    // wrong -> 해당 페이지로 이동
+    signIn: '/auth/login',
+    // error => 우리가 만든 에러페이지로 이동하게 해줌.
+    error: '/auth/error',
+  },
+  events: {
+    async linkAccount({ user }) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
+      });
+    },
+  },
   callbacks: {
     // async signIn({ user }) {
     //   const existingUser = await getUserById(user.id);
