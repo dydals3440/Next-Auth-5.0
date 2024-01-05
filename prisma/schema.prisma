@@ -43,3 +43,12 @@ model User {
   role          UserRole @default(USER)
   accounts      Account[] // relation model Account의
 }
+
+model VerificationToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+  // email에 하나의 유효한 토큰만 있음.
+  @@unique([email, token])
+}
