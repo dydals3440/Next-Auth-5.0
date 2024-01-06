@@ -7,6 +7,8 @@ import { LoginSchema } from '@/app/schemas';
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { generateVerificationToken } from '@/lib/token';
+import { getUserByEmail } from '@/data/user';
 
 // our server code never be bundle client
 
@@ -19,6 +21,21 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 
   const { email, password } = validatedFields.data;
+  // 이메일 인가 인증 추가 로직
+  const existingUser = await getUserByEmail(email);
+
+  // 유저가 없으면 없다고 메시지 띄움
+  if (!existingUser || !existingUser.email || !existingUser.password) {
+    return { error: 'Email does not exist' };
+  }
+
+  if (!existingUser.emailVerified) {
+    const verificationToken = await generateVerificationToken(
+      existingUser.email
+    );
+
+    return { success: 'Confirmation email Sent' };
+  }
 
   try {
     await signIn('credentials', {
