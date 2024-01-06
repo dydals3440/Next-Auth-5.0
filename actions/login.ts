@@ -9,6 +9,7 @@ import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { generateVerificationToken } from '@/lib/token';
 import { getUserByEmail } from '@/data/user';
+import { sendVerificationEmail } from '@/lib/mail';
 
 // our server code never be bundle client
 
@@ -32,6 +33,11 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(
       existingUser.email
+    );
+
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token
     );
 
     return { success: 'Confirmation email Sent' };

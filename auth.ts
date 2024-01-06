@@ -29,13 +29,17 @@ export const {
     },
   },
   callbacks: {
-    // async signIn({ user }) {
-    //   const existingUser = await getUserById(user.id);
-    //   if (!existingUser || !existingUser.emailVerified) {
-    //     return false;
-    //   }
-    //   return true;
-    // },
+    async signIn({ user, account }) {
+      if (account?.provider !== 'credentials') return true;
+
+      const existingUser = await getUserById(user.id);
+      // 이메일 인증이 안되면 로그인 막아버림
+      if (!existingUser?.emailVerified) return false;
+
+      // TODO: ADD 2FA check
+
+      return false;
+    },
     // NEXT AUTH CALLBACKS 공식문서확인
     async session({ token, session }) {
       if (token.sub && session.user) {

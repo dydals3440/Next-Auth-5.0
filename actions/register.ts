@@ -7,6 +7,7 @@ import { RegisterSchema } from '@/app/schemas';
 import { db } from '@/lib/db';
 import { getUserByEmail } from '@/data/user';
 import { generateVerificationToken } from '@/lib/token';
+import { sendVerificationEmail } from '@/lib/mail';
 // our server code never be bundle client
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
@@ -36,7 +37,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   });
 
   const verificationToken = await generateVerificationToken(email);
-
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
   // TODO: Send Verification token email
 
   return { success: 'Confirmation email sent!' };
